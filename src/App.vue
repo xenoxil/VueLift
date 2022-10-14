@@ -81,8 +81,7 @@ export default {
 </script>
 
 <template>
-  <section class="section__lift">
-    <div class="floor" v-for="floor in floors">
+  <section class="section__lift">    
       <div class="lift__shaft" v-for="shaft in shafts">
         <div class="lift" :class="{ lift__blink: isLiftRest }" v-for="shaft in shafts" :style="liftPosition">
           <p class="lift__direction" v-show="!this.isLiftFree">
@@ -90,14 +89,17 @@ export default {
           </p>
         </div>
       </div>
-      <button
-        class="lift__btn"
-        :class="{ lift__btn_active: this.liftCallStack.find((element) => element === floor) }"
-        @click="callLift(floor)"
-      >
-        {{ floor }}
-      </button>
-    </div>
+      <div class="container">
+      <div class="floor" v-for="floor in floors">
+        <button
+          class="lift__btn"
+          :class="{ lift__btn_active: this.liftCallStack.find((element) => element === floor) }"
+          @click="callLift(floor)"
+        >
+          {{ floor }}
+        </button>
+      </div>
+    </div>    
   </section>
 </template>
 
@@ -109,10 +111,16 @@ export default {
 }
 .section__lift {
   margin: auto 0;
+  padding-left:15px;
   width: 100vw;
   background-color: rgb(231, 231, 231);
   position: relative;
   display: flex;
+  flex-direction: row;
+}
+.container{
+  display:flex;
+  width: calc(100%-15px);
   flex-direction: column-reverse;
 }
 .floor {
@@ -125,10 +133,10 @@ export default {
 }
 .lift__shaft {
   margin-left: 10px;
-  width: 100px;
-  height: 98px;
+  width: 100px;  
   border-left: 1px solid gray;
   border-right: 1px solid gray;
+  position:relative;
 }
 .lift__shaft:first-of-type {
   margin-left: 0;
@@ -148,7 +156,7 @@ export default {
 }
 .lift {
   position: absolute;
-  left: 15px;
+  left: 0px;
   bottom: 0px;
   background-color: lightblue;
   width: 100px;
