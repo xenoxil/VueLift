@@ -7,40 +7,61 @@ export default {
   data() {
     return {
       floors: 5,
-      shafts:1,
+      shafts: 1,
       liftCallStack: [],
-      liftOnFloor:1,
-      liftPosition:{
-        transition: "all 3s linear 0s",
-        transform: "translateY(0px)",}
+      liftOnFloor: 1,
+      liftPosition: {
+        transition: 'all 3s linear 0s',
+        transform: 'translateY(0px)',
+      },
+      isLiftDirectionUp:true,
+      isLiftFree: true,
+      isLiftRest: false,
     };
   },
   methods: {
-    callLift() {},
-    moveLiftToFloor(floor){  
-      this.liftPosition={
-        transition: `all ${Math.abs(this.liftOnFloor - floor)*1}s linear 0s`,
-        transform: `translateY(${100-floor*100}px)`,
+    async callLift(floor) {
+      if (this.isLiftFree) {
+        await this.moveLiftToFloor(floor);
       }
-      this.liftOnFloor=floor;
-    }
+    },
+    moveLiftToFloor(floor) {
+      this.isLiftFree = false;
+      this.liftOnFloor<floor ? this.isLiftDirectionUp=true : this.isLiftDirectionUp=false
+      this.liftPosition = {
+        transition: `all ${Math.abs(this.liftOnFloor - floor) * 1}s linear 0s`,
+        transform: `translateY(${100 - floor * 100}px)`,
+      };      
+      this.liftOnFloor = floor;
+      setTimeout(() => {
+        this.liftRest();
+      }, Math.abs(this.liftOnFloor - floor) * 1000);
+    },
+    liftRest() {
+      this.isLiftRest = true;
+    setTimeout(() => {
+      this.isLiftRest = false;
+    this.isLiftFree = true;
+    }, 3000);
+    
   },
+  },
+  
 };
 </script>
 
-<template>  
-    <section class="section__lift">
-      <div class="floor" v-for="floor in floors">
-        <div class="lift__shaft" v-for="shaft in shafts"></div>
-        <button
-          class="lift__btn"
-          @click="moveLiftToFloor(floor)"
-        >
-          {{ floor }}
-        </button>
-      </div>
-      <div class="lift" v-for="shaft in shafts" :style='liftPosition'></div>
-    </section>  
+<template>
+  <section class="section__lift">
+    <div class="floor" v-for="floor in floors">
+      <div class="lift__shaft" v-for="shaft in shafts"></div>
+      <button class="lift__btn" @click="callLift(floor)">
+        {{ floor }}
+      </button>
+    </div>
+    <div class="lift" :class="{ lift__blink: isLiftRest }" v-for="shaft in shafts" :style="liftPosition">
+      <p class="lift__direction" v-show="!this.isLiftFree">{{`${this.liftOnFloor}  ${isLiftDirectionUp ? "↑" : "↓"}`}}</p>
+    </div>
+  </section>
 </template>
 
 <style>
@@ -50,8 +71,8 @@ export default {
   box-sizing: border-box;
 }
 .section__lift {
-  margin:auto 0;
-  width: 100vw;  
+  margin: auto 0;
+  width: 100vw;
   background-color: rgb(231, 231, 231);
   position: relative;
   display: flex;
@@ -88,6 +109,26 @@ export default {
   bottom: 0px;
   background-color: lightblue;
   width: 100px;
-  height: 100px;  
+  height: 100px;
+  display: flex;
+}
+.lift__direction{
+  margin:10px auto auto;
+  background-color: #f6fafa; 
+}
+.lift__blink {
+  animation: blink linear 3s;
+}
+
+@keyframes blink {
+  25% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 0;
+  }
 }
 </style>
