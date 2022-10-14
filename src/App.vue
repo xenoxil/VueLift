@@ -7,11 +7,23 @@ export default {
   data() {
     return {
       floors: 5,
+      shafts:1,
       liftCallStack: [],
+      liftOnFloor:1,
+      liftPosition:{
+        transition: "all 3s linear 0s",
+        transform: "translateY(0px)",}
     };
   },
   methods: {
     callLift() {},
+    moveLiftToFloor(floor){  
+      this.liftPosition={
+        transition: `all ${Math.abs(this.liftOnFloor - floor)*1}s linear 0s`,
+        transform: `translateY(${100-floor*100}px)`,
+      }
+      this.liftOnFloor=floor;
+    }
   },
 };
 </script>
@@ -19,18 +31,15 @@ export default {
 <template>  
     <section class="section__lift">
       <div class="floor" v-for="floor in floors">
-        <div class="lift__shaft"></div>
+        <div class="lift__shaft" v-for="shaft in shafts"></div>
         <button
           class="lift__btn"
-          @click="
-            {
-            }
-          "
+          @click="moveLiftToFloor(floor)"
         >
           {{ floor }}
         </button>
       </div>
-      <div class="lift"></div>
+      <div class="lift" v-for="shaft in shafts" :style='liftPosition'></div>
     </section>  
 </template>
 
@@ -79,8 +88,6 @@ export default {
   bottom: 0px;
   background-color: lightblue;
   width: 100px;
-  height: 100px;
-  transition: all 3s linear 0s;
-  transform: translateY(0px);
+  height: 100px;  
 }
 </style>
