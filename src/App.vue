@@ -27,15 +27,16 @@ export default {
     },
     moveLiftToFloor(floor) {
       this.isLiftFree = false;
-      this.liftOnFloor<floor ? this.isLiftDirectionUp=true : this.isLiftDirectionUp=false
+      this.liftOnFloor<floor ? this.isLiftDirectionUp=true : this.isLiftDirectionUp=false;
+      let floorDifference=Math.abs(this.liftOnFloor - floor);
       this.liftPosition = {
-        transition: `all ${Math.abs(this.liftOnFloor - floor) * 1}s linear 0s`,
+        transition: `all ${floorDifference * 1}s linear 0s`,
         transform: `translateY(${100 - floor * 100}px)`,
-      };      
+      };
       this.liftOnFloor = floor;
       setTimeout(() => {
         this.liftRest();
-      }, Math.abs(this.liftOnFloor - floor) * 1000);
+      }, floorDifference * 1000);      
     },
     liftRest() {
       this.isLiftRest = true;
