@@ -20,11 +20,13 @@ export default {
     };
   },
   methods: {
-    callLift(floor) {
-      this.liftCallStack.push(floor);
-      if (this.isLiftFree) {
+    callLift(floor) {      
+      if(this.liftOnFloor!==floor){
+        this.liftCallStack.push(floor);
+        if (this.isLiftFree) {          
         this.moveLiftToFloor(floor);
-      }      
+      }  
+      }          
     },
     moveLiftToFloor(floor) {
       this.isLiftFree = false;
