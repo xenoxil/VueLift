@@ -165,7 +165,7 @@ export default {
         </p>
       </div>
     </div>
-    <div class="container" :style="{ width: 100 }">
+    <div class="container" >
       <div class="floor" v-for="floor in floors">
         <button
           class="lift__btn"
@@ -253,15 +253,13 @@ export default {
 .lift__shaft {
   margin-left: 10px;
   width: 100px;
+  max-width: 100px;
   border-left: 1px solid gray;
   border-right: 1px solid gray;
   position: relative;
 }
 .lift__shaft:first-of-type {
   margin-left: 0;
-}
-.lift__shaft_full {
-  background-color: lightblue;
 }
 .lift__btn {
   margin: auto 0 auto 15px;
@@ -278,7 +276,7 @@ export default {
   left: 0px;
   bottom: 0px;
   background-color: lightblue;
-  width: 97.5px;
+  width: 100%;
   height: 100px;
   display: flex;
 }
