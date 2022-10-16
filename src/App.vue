@@ -55,7 +55,6 @@ export default {
       this.isLiftFree[lift] = false;
       this.liftCallStack.shift();
       localStorage.setItem('liftCallStack', this.liftCallStack);
-
       this.liftOnFloor[lift] < floor ? (this.isLiftDirectionUp[lift] = true) : (this.isLiftDirectionUp[lift] = false);
       let floorDifference = Math.abs(this.liftOnFloor[lift] - floor);
       this.liftPosition[lift] = {
@@ -85,6 +84,7 @@ export default {
         .split(',')
         .map((value) => Number(value))),
         (this.liftCallStack = localStorage.getItem('liftCallStack').split(','));
+      console.log(this.liftCallStack);
       for (let i = 0; i < this.liftOnFloor.length; i++) {
         this.liftPosition[i] = {
           transition: `all 3s linear 0s`,
@@ -96,7 +96,7 @@ export default {
         this.liftCallStack.shift();
       }
       if (this.liftCallStack[0]) {
-        this.moveLiftToFloor(this.liftCallStack[0]);
+        this.moveLiftToFloor(this.liftCallStack[0], this.findClosestFreeLift(this.liftCallStack[0]));
       }
     },
     makeSetup() {
@@ -140,6 +140,7 @@ export default {
     isLiftFree: {
       handler: function (newValue) {
         if (newValue.indexOf(true) != -1 && this.liftCallStack.length > 0) {
+          console.log(newValue.indexOf(true));
           this.moveLiftToFloor(this.liftCallStack[0], newValue.indexOf(true));
         }
       },
