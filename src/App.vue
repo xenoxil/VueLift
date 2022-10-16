@@ -13,7 +13,7 @@ export default {
       liftPosition: {
         transition: 'all 3s linear 0s',
         transform: 'translateY(0px)',
-      },
+      },    
       isLiftDirectionUp: true,
       isLiftFree: true,
       isLiftRest: false,
@@ -21,7 +21,7 @@ export default {
   },
   methods: {
     callLift(floor) {
-      if (this.liftOnFloor !== floor) {
+      if (this.liftOnFloor !== floor) {        
         this.liftCallStack.push(floor);
         localStorage.setItem('liftCallStack', this.liftCallStack);
         if (this.isLiftFree) {
@@ -53,15 +53,18 @@ export default {
         this.isLiftFree = true;
       }, 3000);
     },
-    getPreviousState() {
+    getPreviousState() {      
       (this.floors = Number(localStorage.getItem('floors'))),
-        (this.liftOnFloor = Number(localStorage.getItem('liftOnFloor'))),
-        (this.liftCallStack = localStorage.getItem('liftCallStack').split(',')),
+        (this.liftOnFloor = Number(localStorage.getItem('liftOnFloor'))),        
+        (this.liftCallStack = localStorage.getItem('liftCallStack').split(',')),        
         (this.liftPosition = {
           transition: `all 3s linear 0s`,
           transform: `translateY(${100 - this.liftOnFloor * 100}px)`,
         });
-      if (this.liftCallStack[0] != '') {
+        if(this.liftCallStack[0]===""){
+          this.liftCallStack.shift();
+        }
+      if (this.liftCallStack[0]) {
         console.log(this.liftCallStack);
         this.moveLiftToFloor(this.liftCallStack[0]);
       }
@@ -89,7 +92,7 @@ export default {
           </p>
         </div>
       </div>
-      <div class="container">
+      <div class="container" :style="{width:100}">
       <div class="floor" v-for="floor in floors">
         <button
           class="lift__btn"
@@ -119,15 +122,13 @@ export default {
   flex-direction: row;
 }
 .container{
-  display:flex;
-  width: calc(100%-15px);
+  display:flex;  
   flex-direction: column-reverse;
 }
 .floor {
   display: flex;
   flex-direction: row;
-  margin-left: 15px;
-  width: calc(100%-15px);
+  margin-left: 15px;  
   min-height: 100px;
   border-bottom: 1px solid gray;
 }
@@ -159,7 +160,7 @@ export default {
   left: 0px;
   bottom: 0px;
   background-color: lightblue;
-  width: 100px;
+  width: 97.5px;
   height: 100px;
   display: flex;
 }
