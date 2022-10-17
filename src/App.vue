@@ -1,15 +1,17 @@
 <script>
-import Floor from '@/components/floor.vue';
+import Floor from '@/components/Floor.vue';
+import SetupForm from './components/SetupForm.vue';
 export default {
   components: {
     Floor,
+    SetupForm,
   },
   data() {
     return {
       floors: 5,
-      shafts: 3,
+      shafts: 1,
       liftCallStack: [],
-      liftButtonActive: [],
+      floorButtonActive: [],
       liftOnFloor: [1],
       liftPosition: [
         {
@@ -21,7 +23,7 @@ export default {
       isLiftFree: [true],
       isLiftRest: [false],
       setupFloors: 5,
-      setupShafts: 3,
+      setupShafts: 1,
       setupError: null,
     };
   },
@@ -30,7 +32,7 @@ export default {
       if (this.liftOnFloor.indexOf(floor) === -1) {
         this.liftCallStack.push(floor);
         localStorage.setItem('liftCallStack', this.liftCallStack);
-        this.liftButtonActive.push(floor);
+        this.floorButtonActive.push(floor);
         if (this.findClosestFreeLift(floor) != -1) {
           this.moveLiftToFloor(floor, this.findClosestFreeLift(floor));
         }
@@ -66,7 +68,7 @@ export default {
       localStorage.setItem('liftOnFloor', this.liftOnFloor);
       setTimeout(() => {
         this.liftRest(lift);
-        this.liftButtonActive.shift();
+        this.floorButtonActive.shift();
       }, floorDifference * 1000);
     },
     liftRest(lift) {
@@ -76,6 +78,14 @@ export default {
         this.isLiftFree[lift] = true;
       }, 3000);
     },
+    setLiftPosition(){
+      for (let i = 0; i < this.liftOnFloor.length; i++) {
+        this.liftPosition[i] = {
+          transition: `all 3s linear 0s`,
+          transform: `translateY(${100 - this.liftOnFloor[i] * 100}px)`,
+        };
+      }
+    },
     getPreviousState() {
       (this.floors = Number(localStorage.getItem('floors'))), (this.shafts = Number(localStorage.getItem('shafts')));
       this.updateModel();
@@ -83,14 +93,8 @@ export default {
         .getItem('liftOnFloor')
         .split(',')
         .map((value) => Number(value))),
-        (this.liftCallStack = localStorage.getItem('liftCallStack').split(','));
-      console.log(this.liftCallStack);
-      for (let i = 0; i < this.liftOnFloor.length; i++) {
-        this.liftPosition[i] = {
-          transition: `all 3s linear 0s`,
-          transform: `translateY(${100 - this.liftOnFloor[i] * 100}px)`,
-        };
-      }
+        (this.liftCallStack = localStorage.getItem('liftCallStack').split(','));      
+      this.setLiftPosition();
 
       if (this.liftCallStack[0] === '') {
         this.liftCallStack.shift();
@@ -99,16 +103,19 @@ export default {
         this.moveLiftToFloor(this.liftCallStack[0], this.findClosestFreeLift(this.liftCallStack[0]));
       }
     },
-    makeSetup() {
-      if (1 < this.setupFloors && this.setupFloors <= 99 && 0 < this.setupShafts && this.setupShafts <= 12) {
-        this.setupError = null;
-        this.shafts = this.setupShafts;
-        this.floors = this.setupFloors;
-        this.updateModel();
-      } else {
-        this.setupError = 'Ошибка: требуется 2-99 этажей и 1-12 лифтов ';
-      }
+    makeSetup(setupFloors, setupShafts, setupError) {
+      this.setupError = setupError;
+      this.shafts = setupShafts;
+      this.floors = setupFloors;
+      this.liftOnFloor = this.liftOnFloor.map((onFloor) => {
+        this
+        return onFloor > this.floors ? 1 : onFloor;
+      });
+      this.setLiftPosition();
+
+      this.updateModel();
     },
+
     updateModel() {
       if (this.shafts > this.liftOnFloor.length) {
         for (this.liftOnFloor.length; this.liftOnFloor.length < this.shafts; ) {
@@ -136,11 +143,10 @@ export default {
     }
     this.updateModel();
   },
-  watch: {
+  watch: { 
     isLiftFree: {
       handler: function (newValue) {
         if (newValue.indexOf(true) != -1 && this.liftCallStack.length > 0) {
-          console.log(newValue.indexOf(true));
           this.moveLiftToFloor(this.liftCallStack[0], newValue.indexOf(true));
         }
       },
@@ -165,34 +171,16 @@ export default {
         </p>
       </div>
     </div>
-    <div class="container" >
-      <div class="floor" v-for="floor in floors">
-        <button
-          class="lift__btn"
-          :class="{ lift__btn_active: this.liftButtonActive.find((element) => element === floor) }"
-          @click="callLift(floor)"
-        >
-          {{ floor }}
-        </button>
-      </div>
-      <p class="error">{{ setupError }}</p>
-      <form class="setup" @submit.prevent>
-        <p class="setup__text">Кол-во этажей</p>
-        <input
-          class="setup__input"
-          type="number"
-          v-bind:value="floors"
-          @input="setupFloors = Number($event.target.value)"
-        />
-        <p class="setup__text">Кол-во лифтов</p>
-        <input
-          class="setup__input"
-          type="number"
-          v-bind:value="shafts"
-          @input="setupShafts = Number($event.target.value)"
-        />
-        <button class="setup__submitBtn" type="submit" @click="makeSetup">Submit</button>
-      </form>
+    <div class="container">
+      <floor :floors="floors" :floorButtonActive="floorButtonActive" :callLift="this.callLift" />
+      <SetupForm
+        :floors="floors"
+        :setupFloors="setupFloors"
+        :setupShafts="setupShafts"
+        :setupError="setupError"
+        :shafts="shafts"
+        @setup="makeSetup"
+      />
     </div>
   </section>
 </template>
@@ -213,43 +201,11 @@ export default {
   flex-direction: row;
 }
 
-.setup {
-  display: flex;
-  flex-direction: row;
-  max-height: 30px;
-  margin-left: 15px;
-  margin-top: 10px;
-}
-.setup__input {
-  margin: 0 5px;
-  width: 40px;
-}
-.setup__submitBtn {
-  width: 50px;
-  display: flex;
-  flex-direction: row;
-  border-radius: 3px;
-  border: 0;
-  justify-content: center;
-  align-items: center;
-  background-color: rgb(250, 250, 250);
-  border: 0.5px solid gray;
-}
-.error {
-  color: rgb(241, 0, 0);
-  margin: 10px 0 0 15px;
-}
 .container {
   display: flex;
   flex-direction: column-reverse;
 }
-.floor {
-  display: flex;
-  flex-direction: row;
-  margin-left: 15px;
-  min-height: 100px;
-  border-bottom: 1px solid gray;
-}
+
 .lift__shaft {
   margin-left: 10px;
   width: 100px;
@@ -261,16 +217,7 @@ export default {
 .lift__shaft:first-of-type {
   margin-left: 0;
 }
-.lift__btn {
-  margin: auto 0 auto 15px;
-  border-radius: 10px;
-  background-color: white;
-  width: 20px;
-  height: 20px;
-}
-.lift__btn_active {
-  background-color: orange;
-}
+
 .lift {
   position: absolute;
   left: 0px;
