@@ -1,8 +1,8 @@
 <template>
-  <div class="floor" v-for="floor in floors">
+  <div class="floor" v-for="floor in $store.state.floors">
         <button
           class="floor__btn"
-          :class="{ floor__btn_active: this.floorButtonActive.find((element) => element === floor) }"
+          :class="{ floor__btn_active: $store.state.floorButtonActive.find((element) => element === floor) }"
           @click="callLift(floor)"
         >
           {{ floor }}
@@ -12,15 +12,7 @@
 
 <script>
 export default {
-    props:{
-        floors:{
-            type: Number,
-            required:true,
-        },
-        floorButtonActive:{
-            type: Array,
-            required:true,
-        },
+    props:{       
         callLift:{          
           required:true,
         }
