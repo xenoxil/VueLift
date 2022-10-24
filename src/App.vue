@@ -192,6 +192,7 @@ export default {
   box-sizing: border-box;
 }
 .section__lift {
+  box-sizing: border-box;
   margin: auto 0;
   padding-left: 15px;
   width: 100vw;
