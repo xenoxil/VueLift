@@ -1,19 +1,41 @@
 <template>
   <div>
-    <p class="setup__error">{{ $store.state.setupError }}</p>
+    <p class="setup__error">{{ setupError }}</p>
     <form class="setup" @submit.prevent>
       <p class="setup__text">Кол-во этажей</p>
-      <input class="setup__input" type="number" v-model="$store.state.setupFloors" />
+      <input class="setup__input" type="number" v-model="floors" />
       <p class="setup__text">Кол-во лифтов</p>
-      <input class="setup__input" type="number" v-model="$store.state.setupShafts" />
-      <button class="setup__submitBtn" type="submit" 
-      @click="$store.commit('makeSetup')">Submit</button>
+      <input class="setup__input" type="number" v-model="shafts" />
+      <button class="setup__submitBtn" type="submit" @click="makeSetup">Submit</button>
     </form>
   </div>
 </template>
 
 <script>
-export default { 
+export default {
+  props: {    
+    shafts: {
+      type: Number,
+      required: true,
+    },
+    floors: {
+      type: Number,
+      required: true,
+    },    
+    setupError: {
+      type: String,
+    },
+  },
+  methods: {
+    makeSetup() {
+      if (1 < this.floors && this.floors <= 99 && 0 < this.shafts && this.shafts <= 12) {
+        this.$emit('setup', this.floors, this.shafts, this.setupError)        
+      } else {
+        this.$emit('setup', this.floors, this.shafts, this.setupError)
+        ;
+      }
+    },
+  },
 };
 </script>
 

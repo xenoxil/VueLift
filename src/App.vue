@@ -1,12 +1,10 @@
 <script>
 import Floor from '@/components/Floor.vue';
 import SetupForm from './components/SetupForm.vue';
-import Lift from './components/Lift.vue';
 export default {
   components: {
     Floor,
     SetupForm,
-    Lift,
   },
   data() {
     return {
@@ -80,22 +78,22 @@ export default {
         this.isLiftFree[lift] = true;
       }, 3000);
     },
-    setLiftPosition() {
+    setLiftPosition(){
       for (let i = 0; i < this.liftOnFloor.length; i++) {
         this.liftPosition[i] = {
-          transition: `all 1s linear 0s`,
+          transition: `all 3s linear 0s`,
           transform: `translateY(${100 - this.liftOnFloor[i] * 100}px)`,
         };
       }
     },
-    /*getPreviousState() {
+    getPreviousState() {
       (this.floors = Number(localStorage.getItem('floors'))), (this.shafts = Number(localStorage.getItem('shafts')));
       this.updateModel();
       (this.liftOnFloor = localStorage
         .getItem('liftOnFloor')
         .split(',')
         .map((value) => Number(value))),
-        (this.liftCallStack = localStorage.getItem('liftCallStack').split(','));
+        (this.liftCallStack = localStorage.getItem('liftCallStack').split(','));      
       this.setLiftPosition();
 
       if (this.liftCallStack[0] === '') {
@@ -104,13 +102,13 @@ export default {
       if (this.liftCallStack[0]) {
         this.moveLiftToFloor(this.liftCallStack[0], this.findClosestFreeLift(this.liftCallStack[0]));
       }
-    },*/
+    },
     makeSetup(setupFloors, setupShafts, setupError) {
       this.setupError = setupError;
       this.shafts = setupShafts;
       this.floors = setupFloors;
       this.liftOnFloor = this.liftOnFloor.map((onFloor) => {
-        this;
+        this
         return onFloor > this.floors ? 1 : onFloor;
       });
       this.setLiftPosition();
@@ -138,15 +136,14 @@ export default {
         this.isLiftRest.splice(this.shafts, 12);
       }
     },
-  },  
-
+  },
   mounted() {
     if (localStorage.getItem('floors')) {
-      this.$store.dispatch('getPreviousState');
+      this.getPreviousState();
     }
     this.updateModel();
   },
-  watch: {
+  watch: { 
     isLiftFree: {
       handler: function (newValue) {
         if (newValue.indexOf(true) != -1 && this.liftCallStack.length > 0) {
@@ -167,10 +164,23 @@ export default {
 
 <template>
   <section class="section__lift">
-    <Lift/>
+    <div class="lift__shaft" v-for="shaft in shafts">
+      <div class="lift" :class="{ lift__blink: isLiftRest[shaft - 1] }" :style="liftPosition[shaft - 1]">
+        <p class="lift__direction" v-show="!this.isLiftFree[shaft - 1]">
+          {{ `${this.liftOnFloor[shaft - 1]}  ${this.isLiftDirectionUp[shaft - 1] ? '↑' : '↓'}` }}
+        </p>
+      </div>
+    </div>
     <div class="container">
-      <floor :callLift="this.callLift" />
-      <SetupForm/>
+      <floor :floors="floors" :floorButtonActive="floorButtonActive" :callLift="this.callLift" />
+      <SetupForm
+        :floors="floors"
+        :setupFloors="setupFloors"
+        :setupShafts="setupShafts"
+        :setupError="setupError"
+        :shafts="shafts"
+        @setup="makeSetup"
+      />
     </div>
   </section>
 </template>
@@ -194,5 +204,46 @@ export default {
 .container {
   display: flex;
   flex-direction: column-reverse;
+}
+
+.lift__shaft {
+  margin-left: 10px;
+  width: 100px;
+  max-width: 100px;
+  border-left: 1px solid gray;
+  border-right: 1px solid gray;
+  position: relative;
+}
+.lift__shaft:first-of-type {
+  margin-left: 0;
+}
+
+.lift {
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  background-color: lightblue;
+  width: 100%;
+  height: 100px;
+  display: flex;
+}
+.lift__direction {
+  margin: 10px auto auto;
+  background-color: #f6fafa;
+}
+.lift__blink {
+  animation: blink linear 3s;
+}
+
+@keyframes blink {
+  25% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 0;
+  }
 }
 </style>
