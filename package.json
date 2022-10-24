@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "esbuild": "^0.15.12",
-    "node": "^18.11.0",
     "vue": "^3.2.38",
     "vue-router": "^4.1.6"
   },
